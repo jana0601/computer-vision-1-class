@@ -130,5 +130,15 @@ function problem4()
   # values and choose one that shows the "important" image  
   # edges. Briey explain with a comment in the code
   # how you found this threshold and why you chose it.
+  
+  # Answer:
+  # If we choose a higher threshold, less edges are present in the output.
+  # A lower threshold results in more pixels that are detected as edges.
+  # The non-maximum-suppresssion algorithm helps in thinning out the edges,
+  # so that even low thresholds yield meaningful results.
+  # However, there is no straight-forward way to determine the threshold,
+  # since which edges are important depends on the task that one wants to solve.
+  # For a solution that clearly detects most of the edges of the house,
+  # a threshold of about 15 / 255 seems reasonable to us.
 
 end
