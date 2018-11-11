@@ -161,12 +161,16 @@ function problem3()
   @test points ≈ points2
   
   # Question 1
+  # Yes, the points match! This should be the case, since we
+  # apply a transformation and then its inverse.
+  
+  # Question 2
   # Why is it necessary to provide the z-coordinates?
   # When applying the perspective projection, the z-coordinate is essentially lost.
   # Points that lie on the same ray from the camera center are projected onto the same point.
   # Thus, a 2D image of points in the world is not enough to reconstruct 3D structure.
 
-  # Question 2
+  # Question 3
   # Are the rotation and translation operations commutative?
   # The rotation and translation operations are not commutative.
   # This can be seen from the example below in the code or understood intuitively.
