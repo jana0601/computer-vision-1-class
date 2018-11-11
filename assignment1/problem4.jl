@@ -34,32 +34,32 @@ function nonmaxsupp(edges::Array{Float64,2},Ix::Array{Float64,2},Iy::Array{Float
     # compute direction angle in degrees between 0 and 360
     directions = mod.(atand.(Iy, Ix), 360)
     
-    # round to 45 degrees and divide into 4 possible cases (E/W, N/S, NW/SE, NE/SW)
+    # round to 45 degrees and divide into 4 possible cases (E/W, NE/SW, N/S, NW/SE)
     rounded_dir = mod.(Int.(round.(directions / 45)), 4)
     for i in 2:size(edges,1)-1
         for j in 2:size(edges,2)-1
 
             if edges[i,j] > 0
-                # 0 / 180 deg
+                # 0 / 180 deg (E/W)
                 if rounded_dir[i,j] == 0.0
                     if edges[i,j] >= edges[i,j + 1] && edges[i,j] >= edges[i,j - 1]
                         maxima[i,j] = edges[i,j]
                     end
                 end
-                # 45 / 225 deg
+                # 45 / 225 deg (NE/SW)
                 if rounded_dir[i,j] == 1.0
-                    if edges[i,j] >= edges[i - 1,j + 1] && edges[i,j] >= edges[i + 1,j - 1]
+                    if edges[i,j] >= edges[i + 1,j + 1] && edges[i,j] >= edges[i - 1,j - 1]
                         maxima[i,j] = edges[i,j]
                     end
 
                 end
-                # 90 / 270 deg
+                # 90 / 270 deg (N/S)
                 if rounded_dir[i,j] == 2.0
                     if edges[i,j] >= edges[i-1,j] && edges[i,j] >= edges[i+1,j]
                         maxima[i,j] = edges[i,j]
                     end
                 end
-                # 135 / 315 deg
+                # 135 / 315 deg (NW/SE)
                 if rounded_dir[i,j] == 3.0
                     if edges[i,j] >= edges[i + 1,j - 1] && edges[i,j] >= edges[i - 1,j + 1]
                         maxima[i,j] = edges[i,j]
@@ -107,7 +107,7 @@ function problem4()
   gcf()
 
   # threshold derivative
-  threshold = 38. / 255.
+  threshold = 15. / 255.
   edges = detectedges(imgx,imgy,threshold)
   figure()
   imshow(edges.>0, "gray", interpolation="none")
@@ -124,7 +124,6 @@ function problem4()
   gcf()
   return
     
-  # TODO: add answer to question from assignment sheet
   # Question:
   # Experiment with various threshold
   # values and choose one that shows the "important" image  
@@ -139,6 +138,8 @@ function problem4()
   # However, there is no straight-forward way to determine the threshold,
   # since which edges are important depends on the task that one wants to solve.
   # For a solution that clearly detects most of the edges of the house,
-  # a threshold of about 15 / 255 seems reasonable to us.
+  # a threshold of about 15 / 255 seems reasonable to us. One can even lower
+  # the treshold more if details in the trees and the reflection in the water
+  # should be visible.
 
 end
