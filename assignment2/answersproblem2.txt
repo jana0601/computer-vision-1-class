@@ -1,0 +1,11 @@
+Q: Briefly explain in answersproblem2.txt how you compute the variance of a single principal component and why the variance can be obtained in that way.
+
+A: The eigenvectors of the covariance matrix specify the directions in which the data vary 
+The variance of a principal component is given by its associated eigenvalue. For efficiency reasons, we perform a singular value decomposition (SVD) on the data matrix X (after mean subtraction) instead of an eigendecomposition on the covariance matrix.
+
+These two decompositions are related via
+
+  (1 / N) * X X' = (1 / N)  * U S V' (U S V')' = U (1/N * S^2) U' = U L U',
+  
+  where L is a diagonal matrix containing eigenvalues and S is a diagonal matrix of singular values. Thus, we can obtain eigenvalues from the SVD by squaring the diagonal elements of S. Since Julia's svd() function yields a list of singular values, we can obtain the variance of the i'th principal component by computing 1/N * S[i]^2.
+ 
