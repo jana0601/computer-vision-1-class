@@ -5,7 +5,7 @@ using FileIO  # Functions for loading and storing data in the ".jld2" format
 
 # Load the image from the provided .jld2 file
 function loaddata()
-  data = load("imagedata.jld2")["data"]
+  data = load("../data-julia/imagedata.jld2")["data"]
   return data::Array{Float64,2}
 end
 

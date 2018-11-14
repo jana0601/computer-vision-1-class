@@ -72,14 +72,14 @@ end
 
 # Load 2D points
 function loadpoints()
-    points = load("obj2d.jld2")["x"]
+    points = load("../data-julia/obj2d.jld2")["x"]
     return points::Array{Float64,2}
 end
 
 
 # Load z-coordinates
 function loadz()
-    z = load("zs.jld2")["Z"]
+    z = load("../data-julia/zs.jld2")["Z"]
     return z::Array{Float64,2}
 end
 

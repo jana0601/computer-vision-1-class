@@ -3,18 +3,18 @@ using FileIO
 
 # load and return the given image
 function loadimage()
-    img = PyPlot.imread("a1p1.png")
+    img = PyPlot.imread("../data-julia/a1p1.png")
     return img::Array{Float32,3}
 end
 
 # save the image as a .jld2 file
 function savefile(img::Array{Float32,3})
-    save("img.jld2", Dict("img" => img))
+    save("../data-julia/img.jld2", Dict("img" => img))
 end
 
 # load and return the .jld2 file
 function loadfile()
-    img = load("img.jld2")["img"]
+    img = load("../data-julia/img.jld2")["img"]
     return img::Array{Float32,3}
 end
 

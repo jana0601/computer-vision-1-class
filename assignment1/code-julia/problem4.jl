@@ -79,7 +79,7 @@ Image Filtering and Edge Detection =#
 function problem4()
 
   # load image
-  img = PyPlot.imread("a1p4.png")
+  img = PyPlot.imread("../data-julia/a1p4.png")
 
   # create filters
   fx, fy = createfilters()
