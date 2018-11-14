@@ -110,3 +110,73 @@ function makelaplacianpyramid(G::Array{Array{Float64,2},1},nlevels::Int,fsize::A
     end
     return L::Array{Array{Float64,2},1}
 end
+
+
+# Amplify frequencies of the first two layers of the laplacian pyramid
+function amplifyhighfreq2(L::Array{Array{Float64,2},1})
+    A = copy(L)
+    A[1] = A[1] .* 1.2
+    A[2] = A[2] .* 2.5
+    return A::Array{Array{Float64,2},1}
+end
+
+# Reconstruct an image from the laplacian pyramid
+function reconstructlaplacianpyramid(L::Array{Array{Float64,2},1},fsize::Array{Int,2})
+    R = copy(L)
+    for i in length(L)-1:-1:1
+        R[i] = R[i] .+ upsample2(R[i+1], fsize)
+    end
+    im = R[1]
+    return im::Array{Float64,2}
+end
+
+
+# Problem 1: Image Pyramids and Image Sharpening
+
+function problem1()
+  # parameters
+  fsize = [5 5]
+  sigma = 1.4
+  nlevels = 6
+
+  # load image
+  im = PyPlot.imread("../data-julia/a2p1.png")
+
+  # create gaussian pyramid
+  G = makegaussianpyramid(im,nlevels,fsize,sigma)
+
+  # display gaussianpyramid
+  displaypyramid(G)
+  title("Gaussian Pyramid")
+
+  # create laplacian pyramid
+  L = makelaplacianpyramid(G,nlevels,fsize)
+
+  # dispaly laplacian pyramid
+  displaypyramid(L)
+  title("Laplacian Pyramid")
+
+  # amplify finest 2 subands
+  L_amp = amplifyhighfreq2(L)
+
+  # reconstruct image from laplacian pyramid
+  im_rec = reconstructlaplacianpyramid(L_amp,fsize)
+
+  # display original and reconstructed image
+  figure()
+  subplot(131)
+  imshow(im,"gray",interpolation="none")
+  axis("off")
+  title("Original Image")
+  subplot(132)
+  imshow(im_rec,"gray",interpolation="none")
+  axis("off")
+  title("Reconstructed Image")
+  subplot(133)
+  imshow(im-im_rec,"gray",interpolation="none")
+  axis("off")
+  title("Difference")
+  gcf()
+
+  return
+end
