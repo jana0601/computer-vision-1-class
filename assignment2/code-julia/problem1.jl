@@ -66,6 +66,7 @@ end
 
 # Display a given image pyramid (laplacian or gaussian)
 function displaypyramid(P::Array{Array{Float64,2},1})
+    PyPlot.figure()
     # initialized a empty
     filled = Array{Array{Float64,2},1}(undef,size(P))
     for i in 1:size(P)[1]
@@ -178,5 +179,57 @@ function problem1()
   title("Difference")
   gcf()
 
+  return
+end
+
+
+## Appendix: Amplification factors
+# Call this function to visualize different levels of amplification
+# for the two highest-frequency bands of the Laplacian pyramid.
+function plot_amplification_factors()
+    
+    fsize = [5 5]
+    sigma = 1.4
+    nlevels = 5
+
+    # read sample image
+    im = PyPlot.imread("../data-julia/a2p1.png")
+
+    # make Laplacian pyramid from a Gaussian pyramid
+    L = makelaplacianpyramid(makegaussianpyramid(im,nlevels,fsize,sigma),nlevels,fsize)
+
+    # initialize PyPlot
+    f, axes = PyPlot.subplots(4,4, figsize=(8,8))
+    PyPlot.tight_layout()
+    i = 0
+    
+    # for different combintions of amplification factors
+    for a = 0.5:0.5:2, b = 0.5:0.5:2
+        i += 1
+        
+        # amplify the high-frequency components of the pyramid
+        A = copy(L)
+        A[1] = A[1] .* a
+        A[2] = A[2] .* b
+
+        # reconstruct and plot the image
+        im_rec = reconstructlaplacianpyramid(A,fsize)
+
+        axes[i][:imshow](im_rec, "gray")
+        
+        # remove axes
+        axes[i][:get_xaxis]()[:set_ticks]([])
+        axes[i][:get_yaxis]()[:set_ticks]([])
+        
+        # add labels
+        if i % 4 == 1
+            axes[i][:set_title]("L_1 * $a", fontsize=14)
+        end
+        if i <= 4
+            axes[i][:set_ylabel]("L_2 * $b", fontsize=14)
+        end
+  end
+  #
+  show()
   return
 end
