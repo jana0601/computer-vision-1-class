@@ -7,5 +7,5 @@ These two decompositions are related via
 
   (1 / N) * X X' = (1 / N)  * U S V' (U S V')' = U (1/N * S^2) U' = U L U',
   
-  where L is a diagonal matrix containing eigenvalues and S is a diagonal matrix of singular values. Thus, we can obtain eigenvalues from the SVD by squaring the diagonal elements of S. Since Julia's svd() function yields a list of singular values, we can obtain the variance of the i'th principal component by computing 1/N * S[i]^2.
+  where L is a diagonal matrix containing eigenvalues and S is a diagonal matrix of singular values. Thus, we can obtain eigenvalues from the SVD by squaring the diagonal elements of S. Since Julia's svd() function yields a list of singular values in descending order, we can obtain the variance of the i'th principal component by computing 1/N * S[i]^2.
  
