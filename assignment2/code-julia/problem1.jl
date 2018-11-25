@@ -57,7 +57,7 @@ function makegaussianpyramid(im::Array{Float32,2},nlevels::Int,fsize::Array{Int,
     # for the remaining nlevels-1 elements
     for i in 2:nlevels
         # filter with a gaussian
-        fim = imfilter(G[i-1], makegaussianfilter(fsize, sigma), "symmetric")
+        fim = imfilter(G[i-1], centered(makegaussianfilter(fsize, sigma)), "symmetric")
         # downsample by a factor of two
         G[i] = downsample2(fim)
     end
@@ -190,7 +190,7 @@ function plot_amplification_factors()
     
     fsize = [5 5]
     sigma = 1.4
-    nlevels = 5
+    nlevels = 6
 
     # read sample image
     im = PyPlot.imread("../data-julia/a2p1.png")

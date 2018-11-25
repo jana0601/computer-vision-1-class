@@ -13,7 +13,7 @@ function loadfaces()
     readimg(root, file) = reshape(Float64.(PyPlot.imread(joinpath(root, file))),(:,1))
     
     # read all images in all subfolders
-    data = [readimg(root, file) for (root, dirs, files) in walkdir(".") for file in filter(x -> endswith(x, "pgm"), files)]
+    data = [readimg(root, file) for (root, dirs, files) in walkdir("../data-julia/") for file in filter(x -> endswith(x, "pgm"), files)]
     
     # concatenate the array of arrays into a 2d array
     data = hcat(data...)
@@ -45,7 +45,7 @@ end
 
 # Plot the cumulative variance of the principal components
 function plotcumvar(cumvar::Array{Float64,1})
-    figure()
+    PyPlot.figure()
     PyPlot.plot(cumvar)
     PyPlot.show()
     return nothing::Nothing
@@ -76,7 +76,6 @@ function showeigenfaces(U::Array{Float64,2},mu::Array{Float64,2},facedim::Array{
     for ax in axes
         ax[:axis]("off")
     end
-    show()
   return nothing::Nothing
 end
 
@@ -108,7 +107,6 @@ end
 
 # Display all reconstructed faces in a single figure
 function showreconstructedfaces(faceim, f5, f15, f50, f150)
-    PyPlot.figure()
     f, axes = PyPlot.subplots(2,4)
     axes[1,1][:imshow](faceim, cmap="gray")
     axes[1,1][:set_title]("Original")
