@@ -10,6 +10,7 @@ export
   cart2hom,
   hom2cart,
   findnonzero,
+  nlfilter,
   correctindpad,
   sift
 
