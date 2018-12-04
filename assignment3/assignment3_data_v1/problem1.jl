@@ -15,7 +15,8 @@ include("Common.jl")
 #
 #---------------------------------------------------------
 function loadimage(filename)
-
+    rgb = Float64.(PyPlot.imread(filename))
+    gray = Common.rgb2gray(rgb)
   return gray::Array{Float64,2}, rgb::Array{Float64,3}
 end
 
@@ -35,7 +36,22 @@ end
 #
 #---------------------------------------------------------
 function computehessian(img::Array{Float64,2},sigma::Float64,fsize::Int)
-
+    # filter image with a gaussian kernel
+    g = Common.gauss2d(sigma, [fsize, fsize])
+    img_filtered = imfilter(img, centered(g), "replicate")
+    
+    # central derivative filters
+    fx = centered([1 0 -1; 1 0 -1; 1 0 -1] / 6)
+    fy = centered([1 1 1; 0 0 0; -1 -1 -1] / 6)
+    
+    # first derivatives
+    I_x = imfilter(img_filtered, fx, "replicate")
+    I_y = imfilter(img_filtered, fy, "replicate")
+    
+    # second derivatives
+    I_xx = imfilter(I_x, fx, "replicate")
+    I_yy = imfilter(I_y, fy, "replicate")
+    I_xy = imfilter(I_x, fy, "replicate")
   return I_xx::Array{Float64,2},I_yy::Array{Float64,2},I_xy::Array{Float64,2}
 end
 
@@ -54,7 +70,8 @@ end
 #
 #---------------------------------------------------------
 function computecriterion(I_xx::Array{Float64,2},I_yy::Array{Float64,2},I_xy::Array{Float64,2}, sigma::Float64)
-
+    # criterion = sigma^4 * det(H)
+    criterion = sigma^4 .* (I_xx .* I_yy - I_xy .^2)
   return criterion::Array{Float64,2}
 end
 
@@ -76,7 +93,25 @@ end
 #
 #---------------------------------------------------------
 function nonmaxsupp(criterion::Array{Float64,2}, thresh::Float64)
+    # compute maxima in a 5x5 region
+    maxima = criterion .- Common.nlfilter(criterion, maximum, 5, 5) .== 0.0
 
+    # throw away all interest points in a 5 pixel boundary at image edges
+    maxima[1:5,:] .= false
+    maxima[end-4:end,:] .= false
+    maxima[:,1:5] .= false
+    maxima[:,end-4:end] .= false
+    
+    # find all points that are larger than the threshold
+    mask_thresh = criterion .> thresh
+
+    # get all indices where the criterion is a local maximum and larger than the threshold
+    indices = findall(maxima .& mask_thresh)
+    
+    # get rows and columns from indices
+    rows = [index[1] for index in indices]
+    columns = [index[2] for index in indices]
+    
   return rows::Array{Int,1},columns::Array{Int,1}
 end
 
@@ -86,9 +121,9 @@ end
 #---------------------------------------------------------
 function problem1()
   # parameters
-  sigma = ?               # std for presmoothing image
-  fsize = ?               # filter size for smoothing
-  threshold = ?           # Corner criterion threshold
+  sigma = 4.5              # std for presmoothing image
+  fsize = 25             # filter size for smoothing
+  threshold = 1e-3      # Corner criterion threshold
 
   # Load both colored and grayscale image from PNG file
   gray,rgb = loadimage("a3p1.png")
@@ -118,6 +153,7 @@ function problem1()
 
   # Apply non-maximum suppression
   rows,columns = nonmaxsupp(criterion,threshold)
+  print(size(rows))
 
   # Display interest points on top of color image
   figure()
