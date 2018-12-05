@@ -41,8 +41,8 @@ function computehessian(img::Array{Float64,2},sigma::Float64,fsize::Int)
     img_filtered = imfilter(img, centered(g), "replicate")
     
     # central derivative filters
-    fx = centered([1 0 -1; 1 0 -1; 1 0 -1] / 6)
-    fy = centered([1 1 1; 0 0 0; -1 -1 -1] / 6)
+    fx = centered([1 0 -1] / 2)
+    fy = centered([1 0 -1]' / 2)
     
     # first derivatives
     I_x = imfilter(img_filtered, fx, "replicate")
