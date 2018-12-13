@@ -1,1 +1,17 @@
- 
+
+Our observations are summarized in this list:
+
+low threshold (0.005 up to 0.5): 
+- low number of best inliers (4 to 15)
+- poor quality (extreme warping effects)
+- low consinstency (very different results over different runs)
+
+medium threshold (0.5 to 5.0):
+- more best inliers (15 to 75)
+- better quality (but still some heavily warped pictures, especially near image borders)
+- better consistency (but still some deviations)
+
+high threshold (5.0 to 500):
+- good number of best inliers (75 to 89)
+- good quality
+- very consistent
