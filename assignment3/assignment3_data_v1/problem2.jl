@@ -107,22 +107,13 @@ end
 #
 #---------------------------------------------------------
 function showmatches(im1::Array{Float64,2},im2::Array{Float64,2},pairs::Array{Int,2})
-    # concatenate images
-    im = [im1 im2]
-    
-    # get matches in first and second image
-    matches1 = pairs[:,1:2]
-    matches2 = pairs[:,3:end]
-    
-    # adjust second image indices by first image's size (due to concatenation)
-    matches2[:,1] = matches2[:,1] .+ size(im1,2)
-
-    PyPlot.figure()
-    PyPlot.imshow(im, "gray")
-    
-    # plot the matches (-1 due to python's zero indexing)
-    plot(matches1[:,1].-1, matches1[:,2].-1, "xy", linewidth=8)
-    plot(matches2[:,1].-1, matches2[:,2].-1, "xy", linewidth=8)
+    figure()
+    imshow([im1 im2], "gray", interpolation="none")
+    c = size(im1,2 )
+    n = size(pairs, 1)
+    for i= 1:n
+        plot([pairs[i, 1], pairs[i, 3]+c], [pairs[i ,2], pairs[i,4]])
+    end
 
   return nothing::Nothing
 end
@@ -232,21 +223,20 @@ function computehomography(points1::Array{Int,2}, points2::Array{Int,2})
     U1 = Common.cart2hom(U1')
     U2 = Common.cart2hom(U2')
     
-    # build linear equation system
-    # (see l8 slide 13)
-    n_eqns = 2*size(points1,1)
-    A = zeros(n_eqns,9)
-    for j = 1:2:n_eqns
-        i = Int((j+1)/2)
-        # U1[:,i] = [x y 1]
-        # U1[:,1]' * -U2[2,i] = [-xy' -yy' -y']
-        # => A[j,:] = [0 0 0 x y 1 -xy' -yy' -y']
-        A[j,:] = [0 0 0 U1[:,i]' U1[:,i]' .* -U2[2,i]]
-        # -U1[:,i]' = [-x -y -1]
-        # U1[:,i]' .* U2[1,i] = [U1[:,i]' .* U2[1,i]]
-        # => A[j+1,:] = [-x -y 1 0 0 0 U1[:,i]' .* U2[1,i]]
-        A[j+1,:] = [-U1[:,i]' 0 0 0  U1[:,i]' .* U2[1,i]]
-    end
+    x1 = U1[1,:]
+    y1 = U1[2,:]
+    x2 = U2[1,:]
+    y2 = U2[2,:]
+    
+    # create zero and 1 vectors to fill matrix
+    O = zeros(size(x1,1))
+    I = ones(size(x1,1))
+    
+    # build equation system
+    # A = [0 0 0 x y 1 -xy' -yy' -y'
+    #      -x -y 1 0 0 0 xx' yx' x']
+    A = [ O O O x1 y1 I -x1.*y2 -y1.*y2 -y2;
+          -x1 -y1 -I O O O x1.*x2 y1.*x2 x2 ]
 
     # perform singular value decomposition
     U, S, V = svd(A, full=true)
