@@ -1,17 +1,24 @@
+The threshold influences several aspects of the panorama image: the Position of the inliers, warping and the rotation of the fitted image. Based on our test with the threshold scales from 0.005 up to 500 (0.005,0.05, .. 50, 500), the following properties could be recognised:
 
-Our observations are summarized in this list:
+A threshold of 0.005 leads to extremely inconsistent results across runs, including warping effects that make the image unrecognizable. An increased threshold leads to more horizontally aligned inliers, which yields a better stitchec image. Increasing the threshold increases, obviously, the amount of best inliers from 4 up 88, which improves consistency across runs.
+Based on our samples, a threshold of 500 leads to the best and most consistent outputs. In this case the number of best
+inliers is always near 88 (+/- one inlier), the image fits very good and extreme warping does not happen in any of our runs.
 
-low threshold (0.005 up to 0.5): 
+Our observations about the number of inliers, quality and consistency are summarized in this list:
+
+Low threshold (0.005 up to 0.5):
 - low number of best inliers (4 to 15)
 - poor quality (extreme warping effects)
-- low consinstency (very different results over different runs)
+- low consistency (very different results over different runs)
 
-medium threshold (0.5 to 5.0):
+Medium threshold (0.5 to 5.0):
 - more best inliers (15 to 75)
 - better quality (but still some heavily warped pictures, especially near image borders)
 - better consistency (but still some deviations)
 
-high threshold (5.0 to 500):
+High threshold (5.0 to 500):
 - good number of best inliers (75 to 89)
 - good quality
 - very consistent
+
+Additionally we tested the threshold of 5000 which lead again to problems with the alignment and warping. We assume that the problem exists because nearly all points are treated as inliers, which leads to an „overconstraining-effect“.
