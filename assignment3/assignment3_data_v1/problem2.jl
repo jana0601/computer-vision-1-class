@@ -245,7 +245,7 @@ function computehomography(points1::Array{Int,2}, points2::Array{Int,2})
     H = reshape(V[:,end], 3,3)'
     
     # undo the conditioning
-    H = inv(T2) * H * T1
+    H = T2 \ H * T1
 
   @assert size(H) == (3,3)
   return H::Array{Float64,2}
@@ -273,7 +273,7 @@ function computehomographydistance(H::Array{Float64,2},points1::Array{Int,2},poi
     
     # d = ||H*x1 - x2||^2 + ||x1 - inv(H)*x2||^2
     leftdist = (Common.hom2cart(H * x1) - points2').^2
-    rightdist = (points1' - Common.hom2cart(inv(H) * x2)).^2
+    rightdist = (points1' - Common.hom2cart(H \ x2)).^2
     d2 = sum((leftdist + rightdist)', dims=2)
 
   @assert length(d2) == size(points1,1)
