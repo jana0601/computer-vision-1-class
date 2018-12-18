@@ -18,8 +18,20 @@ include("Common.jl")
 #
 #---------------------------------------------------------
 function condition(points::Array{Float64,2})
-  # just insert your assignment3 condition method here..
-
+    # s = 1/2 max(||x_i||)
+    s = 0.5 * maximum(sqrt.(sum(points[1:2,:].^2, dims=1)))
+    
+    # t = mean(x_i)
+    tx = mean(points[1,:])
+    ty = mean(points[1,:])
+    
+    # build T matrix (see l8 slide 14)
+    T = [1/s 0 -tx/s;
+        0 1/s -ty/s;
+        0 0 1]
+    
+    # transform the points (in homogeneous coordinates)
+    U = T * points
   @assert size(U) == size(points)
   @assert size(T) == (3,3)
   return U::Array{Float64,2},T::Array{Float64,2}
@@ -38,11 +50,15 @@ end
 #---------------------------------------------------------
 # Enforce that the given matrix has rank 2
 function enforcerank2(A::Array{Float64,2})
-
+    # perform svd on A
+    U, S, V = svd(A, full=true)
+    # force the last singular value to be zero -> decreases rank by 1
+    S[end] = 0
+    # assamble the low-rank matrix
+    Ahat = U * diagm(0 => S) * V'
   @assert size(Ahat) == (3,3)
   return Ahat::Array{Float64,2}
 end
-
 
 #---------------------------------------------------------
 # Compute fundamental matrix from conditioned coordinates.
@@ -57,11 +73,28 @@ end
 #---------------------------------------------------------
 # Compute the fundamental matrix for given conditioned points
 function computefundamental(p1::Array{Float64,2},p2::Array{Float64,2})
+    
+    x1 = p1[1,1:8]
+    y1 = p1[2,1:8]
+    x2 = p2[1,1:8]
+    y2 = p2[2,1:8]
+    
+    # create zero and 1 vectors to fill matrix
+    I = ones(size(x1,1))
+    
+    # build equation system
+    A = [x1.*x2 y1.*x2 x2 x1.*y2 y1.*y2 y2 x1 y1 I]
 
+    # perform singular value decomposition
+    U, S, V = svd(A, full=true)
+    
+    # take the last right singular vector and reshape into 3x3 matrix
+    F = collect(reshape(V[:,end], 3,3)')
+    
+    F = enforcerank2(F)
   @assert size(F) == (3,3)
   return F::Array{Float64,2}
 end
-
 
 #---------------------------------------------------------
 # Compute fundamental matrix from unconditioned coordinates.
@@ -75,7 +108,13 @@ end
 #
 #---------------------------------------------------------
 function eightpoint(p1::Array{Float64,2},p2::Array{Float64,2})
-
+    # condition both sets of points
+    U1, T1 = condition(p1)
+    U2, T2 = condition(p2)
+    
+    F = computefundamental(U1, U2)
+    # undo the conditioning
+    F = T2' * F * T1
   @assert size(F) == (3,3)
   return F::Array{Float64,2}
 end
@@ -100,7 +139,22 @@ end
 #
 #---------------------------------------------------------
 function showepipolar(F::Array{Float64,2},points::Array{Float64,2},img::Array{Float64,3})
+    lines = F * Common.cart2hom(points')
+    
+    x = 1:size(img,2)
+    x = repeat(x', 16)
 
+
+    y = - lines[1,:] ./ lines[2,:] .* x .- lines[3,:] ./ lines[2,:]
+    imshow(img)
+
+    for i in 1:size(y,1)
+        plot(x[i,:], y[i,:])
+    end
+    
+    ax = gca()
+    ax[:set_ylim]([size(img,1),0])
+    ax[:set_xlim]([0,size(img,2)])
   return nothing::Nothing
 end
 
@@ -119,7 +173,7 @@ end
 #
 #---------------------------------------------------------
 function computeresidual(p1::Array{Float64,2},p2::Array{Float64,2},F::Array{Float64,2})
-  
+  residual = randn(3,3)
   return residual::Array{Float64,2}
 end
 
@@ -164,6 +218,7 @@ function problem1()
   scatter(points2[:,1],points2[:,2])
   title("Epipolar lines in right image")
 
+        #=
   # check epipolar constraint by computing the remaining residuals
   residual = computeresidual(x1, x2, F)
   println("Residuals:")
@@ -175,6 +230,7 @@ function problem1()
   println("Epipole 1: $(e1)")
   e2 = U[1:2,3]./U[3,3]
   println("Epipole 2: $(e2)")
+    =#
 
   return
 end
