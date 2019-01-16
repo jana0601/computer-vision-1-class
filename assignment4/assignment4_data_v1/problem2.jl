@@ -20,7 +20,8 @@ include("Common.jl")
 #   mask:           [h x w] validity mask
 #---------------------------------------------------------
 function loadGTdisaprity(filename)
-
+    disparity_gt = 256 * Float64.(PyPlot.imread("a4p2_gt.png"))
+    mask = disparity_gt .== 0.0
   @assert size(mask) == size(disparity_gt)
   return disparity_gt::Array{Float64,2}, mask::BitArray{2}
 end
@@ -37,7 +38,9 @@ end
 #
 #---------------------------------------------------------
 function computeNC(patch1, patch2)
-
+    diff1 = patch1 .- mean(patch1)
+    diff2 = patch2 .- mean(patch2)
+    nc_cost = - diff1' * diff2 / (norm(diff1) * norm(diff2))
   return nc_cost::Float64
 end
 
@@ -53,7 +56,7 @@ end
 #
 #---------------------------------------------------------
 function computeSSD(patch1, patch2)
-
+    ssd_cost = sum((patch1 .- patch2).^2)
   return ssd_cost::Float64
 end
 
@@ -72,7 +75,9 @@ end
 #
 #---------------------------------------------------------
 function calculateError(disparity, disparity_gt, valid_mask)
-
+    disparity = disparity .* valid_mask
+    error_map = sqrt.((disparity .- disparity_gt).^2)
+    error_disparity = mean(error_map)
   @assert size(disparity) == size(error_map)
   return error_disparity::Float64, error_map::Array{Float64,2}
 end
@@ -94,8 +99,33 @@ end
 #
 #---------------------------------------------------------
 function computeDisparity(gray_l, gray_r, max_disp, w_size, cost_ftn::Function)
-
-
+    ws = w_size[1] * w_size[2]
+    wsh = div(w_size[1], 2)
+    wsw = div(w_size[2], 2)
+    I_l = padarray(gray_l, Pad(:replicate, wsh, wsw))
+    I_r = padarray(gray_r, Pad(:replicate, wsh, wsw))
+    h, w = size(gray_l)
+    
+    disparity = zeros(Int64, size(gray_l))
+    for i in 1:h # for every row
+        for j in 1:w # for every column
+            w_l = I_l[i-wsh:i+wsh, j-wsw:j+wsw]
+            
+            best_loss = Inf
+            for disp in 0:max_disp # try out every disparity value between 0 and max_disp
+                if (j - disp) < 1
+                    continue
+                end
+                w_r = I_r[i-wsh:i+wsh, (j-disp)-wsw:(j-disp)+wsw]
+                loss = cost_ftn(reshape(w_l, ws), reshape(w_r, ws))
+                if loss < best_loss
+                    best_loss = loss
+                    disparity[i,j] = disp
+                end
+            end
+                
+        end
+    end
   @assert size(disparity) == size(gray_l)
   return disparity::Array{Int64,2}
 end
@@ -104,7 +134,23 @@ end
 #   An efficient implementation
 #---------------------------------------------------------
 function computeDisparityEff(gray_l, gray_r, max_disp, w_size)
+    wsh = div(w_size[1], 2)
+    wsw = div(w_size[2], 2)
+    I_l = padarray(gray_l, Pad(:replicate, wsh, wsw))
+    I_r = padarray(gray_r, Pad(:replicate, wsh, wsw))
 
+    sum_kernel = centered(ones(w_size[1], w_size[2]))
+    
+    ssd = zeros((size(I_l)..., max_disp+1))
+    for disp in 0:max_disp
+        I_rd = circshift(I_r, (0,+disp))
+        ssd[:,:,disp+1] = imfilter((I_l .- I_rd).^2, sum_kernel)
+    end
+
+    
+    disparity = argmin(ssd, dims=3)[wsh+1:end-wsh, wsw+1:end-wsw]
+    get_disp(x) = x[3] - 1
+    disparity = map(get_disp, disparity)
 
   @assert size(disparity) == size(gray_l)
   return disparity::Array{Int64,2}
