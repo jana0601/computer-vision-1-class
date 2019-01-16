@@ -59,6 +59,7 @@ function enforcerank2(A::Array{Float64,2})
   return Ahat::Array{Float64,2}
 end
 
+
 #---------------------------------------------------------
 # Compute fundamental matrix from conditioned coordinates.
 #
@@ -94,6 +95,7 @@ function computefundamental(p1::Array{Float64,2},p2::Array{Float64,2})
   @assert size(F) == (3,3)
   return F::Array{Float64,2}
 end
+
 
 #---------------------------------------------------------
 # Compute fundamental matrix from unconditioned coordinates.
@@ -218,7 +220,7 @@ function problem1()
   scatter(points2[:,1],points2[:,2])
   title("Epipolar lines in right image")
 
-        #=
+
   # check epipolar constraint by computing the remaining residuals
   residual = computeresidual(x1, x2, F)
   println("Residuals:")
@@ -230,7 +232,6 @@ function problem1()
   println("Epipole 1: $(e1)")
   e2 = U[1:2,3]./U[3,3]
   println("Epipole 2: $(e2)")
-    =#
 
   return
 end
