@@ -21,7 +21,7 @@ include("Common.jl")
 #---------------------------------------------------------
 function loadGTdisaprity(filename)
     disparity_gt = 256 * Float64.(PyPlot.imread("a4p2_gt.png"))
-    mask = disparity_gt .== 0.0
+    mask = disparity_gt .!= 0.0
   @assert size(mask) == size(disparity_gt)
   return disparity_gt::Array{Float64,2}, mask::BitArray{2}
 end
