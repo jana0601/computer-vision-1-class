@@ -1,4 +1,8 @@
 In window-based matching methods, the results are sensitive to the applied window size.
 1. Test various square window sizes (w × w) and determine which window size yields the lowest average end-point error for each cost function (SSD and NC).
 2. Have a close look at the estimated disparity and error maps and discuss pros and cons of using a bigger window size (e.g . 27 × 27) and smaller window size (e.g . 5 × 5) in a qualitative manner.
+
+- small window size -> better details, but also increased noise
+- large window size -> smoother at surfaces, but ignoring information -> too smooth at object boundaries
+- minimum of cost function depends on the image (size of objects in the scene etc) -> no single best window size for all images exists
  
