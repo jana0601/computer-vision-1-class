@@ -2,7 +2,7 @@ In window-based matching methods, the results are sensitive to the applied windo
 1. Test various square window sizes (w × w) and determine which window size yields the lowest average end-point error for each cost function (SSD and NC).
 2. Have a close look at the estimated disparity and error maps and discuss pros and cons of using a bigger window size (e.g . 27 × 27) and smaller window size (e.g . 5 × 5) in a qualitative manner.
 
-1. For the SSD cost function, we get a minimum of 1.409 at a window size of 35. For the NC cost function, we get a minimum of 1.328 at a window size of 25.
+1. For the SSD cost function, we get a minimum of 1.409 at a window size of 35. For the NC cost function, we get a minimum of 1.325 at a window size of 29.
 
 2. There is a trade-off for the window-size. If the window-size is too small, the geometry of smaller objects in the image come out more clearly in the estimated depth-map (e.g. at the boundaries of the cars). Small windows can, however, only take into account a small region of appearance information and thus overemphasizes noise in rather uniform regions (e.g. at the house walls). The larger windows, on the other hand, create smoother surfaces, but can sometimes be too smooth at object boundaries, since it always takes into account a large region. Which details in an image are best captured by which window size depends strongly on the structure of the image. Thus, there is no single best window size.
 
