@@ -96,15 +96,16 @@ function loadimages()
 
   ### Your implementations for loading images here -------
 
-
-
-
-
+    bike_imgs = [imread("bikes/$(lpad(string(i),3,"0")).png") for i in 1:nbikes]
+    bikes = Dataset(bike_imgs, [0 for i in 1:nbikes], nbikes)
+    
+    plane_imgs = [imread("planes/$(lpad(string(i),3,"0")).png") for i in 1:nplanes]
+    planes = Dataset(plane_imgs, [1 for i in 1:nplanes], nplanes)
 
   ### ----------------------------------------------------
 
-  trainplanes, testplanes = traintestsplit(???, 0.5)
-  trainbikes, testbikes = traintestsplit(???, 0.5)
+  trainplanes, testplanes = traintestsplit(planes, 0.5)
+  trainbikes, testbikes = traintestsplit(bikes, 0.5)
 
   trainingset = concat(trainbikes, trainplanes)
   testingset = concat(testbikes, testplanes)
@@ -123,8 +124,20 @@ end
 # Use params.sigma for the Harris corner detector and SIFT together.
 #---------------------------------------------------------
 function extractfeatures(images::ImageList, params::Parameters)
-
-
+    
+    # init feature list
+    features = FeatureList()
+    
+    # for each image
+    for i = 1:length(images)
+        img = images[i]
+        
+        # detect interest points
+        px, py = Common.detect_interestpoints(img, params.fsize, params.threshold, params.sigma, params.boundary)
+        # compute sift features
+        img_features = Common.sift([py px], img, params.sigma)
+        push!(features, img_features) 
+    end
 
 
   @assert length(features) == length(images)
@@ -140,7 +153,8 @@ end
 #---------------------------------------------------------
 function concatenatefeatures(features::FeatureList)
 
-
+    # concatenate horizontally
+    X = hcat(features...)
 
   @assert size(X,1) == 128
   return X::Array{Float64,2}
@@ -150,8 +164,8 @@ end
 # Build a codebook for a given feature matrix by k-means clustering with K clusters
 #---------------------------------------------------------
 function computecodebook(X::Array{Float64,2},K::Int)
-
-
+    kmeans_result = Clustering.kmeans(X, K)
+    codebook = kmeans_result.centers
 
   @assert size(codebook) == (size(X,1),K)
   return codebook::Array{Float64,2}
@@ -162,9 +176,27 @@ end
 # Compute a histogram over the codebook for all given features
 #---------------------------------------------------------
 function computehistogram(features::FeatureList,codebook::Array{Float64,2},K::Int)
-
-
-
+    
+    # initialize histogram matrix
+    H = zeros(K, length(features))
+    
+    # for each image
+    for i in 1:length(features)
+        # get current image
+        img = features[i]
+        # for each sift feature in the image
+        for j in 1:size(img,2)
+            feature = img[:,j]
+            # compute which codeword the feature is closest to
+            distances = sqrt.(sum((codebook .- feature).^2, dims=1))
+            closest_codeword = argmin(distances)[2]
+            # increase the counter for the closest codeword
+            H[closest_codeword, i] += 1
+        end
+    end
+    
+    # normalize the histogram for each image
+    H = H ./ sum(H, dims=1)
 
   @assert size(H) == (K,length(features))
   return H::Array{Float64,2}
@@ -177,7 +209,17 @@ end
 #---------------------------------------------------------
 function visualizefeatures(X::Array{Float64,2}, y)
 
-
+    # fit PCA
+    M = fit(PCA, X, maxoutdim=2)
+    
+    Xt = transform(M, X)
+    
+    # plot in two colors
+    PyPlot.figure()
+    PyPlot.scatter(Xt[1,y.==0], Xt[2,y.==0])
+    PyPlot.scatter(Xt[1,y.==1], Xt[2,y.==1])
+    PyPlot.show()
+    
 
 
   return nothing::Nothing
