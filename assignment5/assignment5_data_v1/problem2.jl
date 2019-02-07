@@ -183,7 +183,7 @@ end
 #---------------------------------------------------------
 function train(trainfeatures::Array{Float64,2}, trainlabels::Array{Float64,1}, netdefinition::Array{Int, 1})
     # initialize network parameters
-    W_init, b_init = initWeights(netdefinition, 1.0, 1.0)
+    W_init, b_init = initWeights(netdefinition, 0.01, 0.001)
     theta_init = weightsToTheta(W_init, b_init)
     
     # define loss function and gradient
