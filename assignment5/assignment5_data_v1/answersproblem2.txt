@@ -1,0 +1,4 @@
+Question:
+Your task is to find a suitable MLP structure with the goal to optimize performance on the test set, i.e. achieving a low test error. Try i) different numbers of layers and ii) different numbers of perceptrons in each layer and keep the best value in your solution. What do you observe when changing i) and ii)? Please provide an analysis in answersproblem2.txt.
+
+Answer:
