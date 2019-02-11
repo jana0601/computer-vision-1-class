@@ -2,3 +2,15 @@ Question:
 Your task is to find a suitable MLP structure with the goal to optimize performance on the test set, i.e. achieving a low test error. Try i) different numbers of layers and ii) different numbers of perceptrons in each layer and keep the best value in your solution. What do you observe when changing i) and ii)? Please provide an analysis in answersproblem2.txt.
 
 Answer:
+To obtain the best configuration three different scenarios were testet. 
+1. Varying first hidden layer from 5 to 100 neurons in steps of 5 neurons, while fixing second layer at N = 30.
+2. Fixed first hidden layer N=40, varying second layer from 5 to 100 neurons in steps of 5 neurons.
+3. Varying the depth of the network between 1 and 6 hidden layers by adding additional layers with 40 neurons.
+We tested each configuration with 10 different random seeds in order to account for random variations.
+
+Based on this the following observations are made:
+1. From 15 up to 80 neurons for the first hidden layer, we obtained low test error rates around 1.67%. With over 80 Neurons in the first hidden layer, we observed higher test error rates. This could be due to the network being overparametrized and thus overfitting.
+2. For the second hidden layer, we found the best test error rates at around 50 neurons. With more than 90 neurons, the overfitting effects and higher test error rates appear again.
+3. With more than 3 hidden layers the, we again observe higher test error rates. 
+
+We conclude that there exists an optimal configuration for the hidden layer sizes for this given problem. With a lower amount of hidden units, the network fails to learn a reasonable representation, but increasing the number of hidden units can also lead to worse performance (probably due to overfitting).

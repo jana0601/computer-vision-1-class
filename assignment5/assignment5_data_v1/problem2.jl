@@ -337,7 +337,7 @@ function problem2()
   testfeatures,testlabels = loaddata("imgstest.jld2")
 
   # train MLP and predict classes
-  Ws,bs = train(trainfeatures,trainlabels, [50,40,30,1])
+  Ws,bs = train(trainfeatures,trainlabels, [50,40,60,1])
   _,trainpredictions = predict(trainfeatures, Ws, bs)
   _,testpredictions = predict(testfeatures, Ws, bs)
 
