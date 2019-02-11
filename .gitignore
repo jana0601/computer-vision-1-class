@@ -1,6 +1,5 @@
 # jupyter notebooks
 *.ipynb
-!assignment5/assignment5_data_v1/Problem2.ipynb
 **/*.ipynb_checkpoints/
 
 *.jl.cov
